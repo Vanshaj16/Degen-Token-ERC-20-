@@ -78,7 +78,7 @@ contract DegenToken is ERC20, Ownable(msg.sender), ERC20Burnable {
 
     function showStoreItems() public view returns (StoreItem[] memory) {
         StoreItem[] memory items = new StoreItem[](4);
-        for (uint256 i = 0; i < 4; i++) {
+        for (uint256 i = 1; i < 5; i++) {
             items[i] = storeItems[i];
         }
         return items;
@@ -108,7 +108,7 @@ contract DegenToken is ERC20, Ownable(msg.sender), ERC20Burnable {
     }
 
     function redeemToken(uint256 _itemIndex) external payable {
-        require(_itemIndex < 4, "Invalid item index");
+        require(_itemIndex < 5, "Invalid item index");
         StoreItem memory item = storeItems[_itemIndex];
         require(balanceOf(msg.sender) >= item.price, "You do not have enough Degen Tokens");
         _burn(msg.sender, item.price);
@@ -116,7 +116,7 @@ contract DegenToken is ERC20, Ownable(msg.sender), ERC20Burnable {
         
        }
 
-    // Fallback function to accept Ether
+    // Fallback function to accept Avax
     receive() external payable {}
 }
 
