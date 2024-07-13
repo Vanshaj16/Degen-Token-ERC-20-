@@ -113,7 +113,8 @@ contract DegenToken is ERC20, Ownable(msg.sender), ERC20Burnable {
         require(balanceOf(msg.sender) >= item.price, "You do not have enough Degen Tokens");
         _burn(msg.sender, item.price);
         payable(msg.sender).transfer(msg.value);
-        
+         // Display the item redeemed
+       return console.log("Item Redeemed:",item.name);
        }
 
     // Fallback function to accept Avax
