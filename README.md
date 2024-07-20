@@ -47,7 +47,8 @@ To get started with the DegenToken contract, you'll need to have the following t
 ```
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
-// Minting new tokens: The platform should be able to create new tokens and distribute them to players as rewards. Only the owner can mint tokens.
+// Minting new tokens: The platform should be able to create new tokens and distribute them to players as 
+// rewards. Only the owner can mint tokens.
 // Transferring tokens: Players should be able to transfer their tokens to others.
 // Redeeming tokens: Players should be able to redeem their tokens for items in the in-game store.
 // Checking token balance: Players should be able to check their token balance at any time.
@@ -66,26 +67,27 @@ contract DegenToken is ERC20, Ownable(msg.sender), ERC20Burnable {
         uint256 price;
     }
 
-     mapping(uint => StoreItem)  storeItems;
+    mapping(uint => StoreItem) public storeItems;
+
+    event ItemRedeemed(address indexed player, string itemName, uint256 itemPrice);
 
     function addItem() public onlyOwner {
-        storeItems[1] = StoreItem("0.5 Eth coin",100);
-        storeItems[2] = StoreItem("5% Cashback",80);
-        storeItems[3] = StoreItem("CryptoPunks",50);
-        storeItems[4] = StoreItem("Axie Infinity free access",500);
-
+        storeItems[1] = StoreItem("0.5 Eth coin", 100);
+        storeItems[2] = StoreItem("5% Cashback", 80);
+        storeItems[3] = StoreItem("CryptoPunks", 50);
+        storeItems[4] = StoreItem("Axie Infinity free access", 500);
     }
 
     function showStoreItems() public view returns (StoreItem[] memory) {
         StoreItem[] memory items = new StoreItem[](4);
-        for (uint256 i = 1; i < 5; i++) {
-            items[i] = storeItems[i];
+        for (uint256 i = 0; i < 4; i++) {
+            items[i] = storeItems[i + 1];
         }
         return items;
     }
 
     function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount); // last value is for decimals
+        _mint(to, amount);
     }
 
     function decimals() override public pure returns (uint8) {
@@ -108,16 +110,19 @@ contract DegenToken is ERC20, Ownable(msg.sender), ERC20Burnable {
     }
 
     function redeemToken(uint256 _itemIndex) external payable {
-        require(_itemIndex < 5, "Invalid item index");
+        require(_itemIndex >= 1 && _itemIndex <= 4, "Invalid item index");
         StoreItem memory item = storeItems[_itemIndex];
         require(balanceOf(msg.sender) >= item.price, "You do not have enough Degen Tokens");
         _burn(msg.sender, item.price);
-        payable(msg.sender).transfer(msg.value);
-         // Display the item redeemed
-       return console.log("Item Redeemed:",item.name);
-       }
+        
+        // Deliver the item to the player
+        emit ItemRedeemed(msg.sender, item.name, item.price);
 
-    // Fallback function to accept Avax
+        // Display the item redeemed in console for debugging purposes
+        console.log("Item Redeemed:", item.name);
+    }
+
+    // Fallback function to accept Ether
     receive() external payable {}
 }
 
