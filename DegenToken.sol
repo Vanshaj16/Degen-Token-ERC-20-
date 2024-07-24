@@ -21,6 +21,7 @@ contract DegenToken is ERC20, Ownable(msg.sender), ERC20Burnable {
     }
 
     mapping(uint => StoreItem) public storeItems;
+    mapping(address => string[]) public redeemedItems;
 
     event ItemRedeemed(address indexed player, string itemName, uint256 itemPrice);
 
@@ -67,12 +68,19 @@ contract DegenToken is ERC20, Ownable(msg.sender), ERC20Burnable {
         StoreItem memory item = storeItems[_itemIndex];
         require(balanceOf(msg.sender) >= item.price, "You do not have enough Degen Tokens");
         _burn(msg.sender, item.price);
-        
-        // Deliver the item to the player
+
+        // Add the item to the player's redeemed items
+        redeemedItems[msg.sender].push(item.name);
+
+        // Emit the ItemRedeemed event
         emit ItemRedeemed(msg.sender, item.name, item.price);
 
         // Display the item redeemed in console for debugging purposes
         console.log("Item Redeemed:", item.name);
+    }
+
+    function getRedeemedItems(address player) external view returns (string[] memory) {
+        return redeemedItems[player];
     }
 
     // Fallback function to accept Ether
